@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "my-locations-api"
+version = "0.1.0"
+description = "API service for my-locations application."
+authors = ["Mark <https://github.com/super16>"]
+packages = [{include = "my_locations_api"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+sqlalchemy = "^1.4.44"
+asyncpg = "^0.27.0"
+sanic = {extras = ["ext"], version = "^22.9.1"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

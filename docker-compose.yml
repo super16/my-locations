@@ -1,0 +1,50 @@
+version: "3"
+
+services:
+  api:
+    container_name: locations_api
+    build: ./api
+    depends_on:
+      - db
+    entrypoint:
+      - poetry
+      - run
+      - sanic
+      - my_locations_api:api
+      - --host=0.0.0.0
+      - --port=8000
+      - --reload
+      - --workers=2
+    ports:
+      - 172.161.13.12:8000:8000
+    volumes:
+      - ./api/my_locations_api:/api/my_locations_api:ro
+
+  db:
+    container_name: locations_db
+    image: postgres:alpine
+    environment:
+      POSTGRES_DB: locations
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: user
+    ports:
+      - 172.161.13.12:5432:5432
+
+  nginx:
+    build: ./frontend
+    container_name: locations_nginx
+    depends_on:
+      - api
+      - db
+    ports:
+      - 172.161.13.12:80:80
+    volumes:
+      - ./frontend/api.conf:/etc/nginx/conf.d/api.conf
+
+networks:
+  default:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.161.13.0/24
+          gateway: 172.161.13.12
