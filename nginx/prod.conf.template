@@ -1,0 +1,65 @@
+load_module modules/ngx_http_brotli_filter_module.so;
+load_module modules/ngx_http_brotli_static_module.so;
+
+user  nobody;
+worker_processes  auto;
+
+error_log  /dev/stderr;
+pid        /run/nginx.pid;
+
+events {
+  worker_connections  1024;
+}
+
+http {
+  include       /etc/nginx/mime.types;
+  default_type  application/octet-stream;
+
+  access_log  /dev/stdout;
+
+  sendfile        on;
+
+  keepalive_timeout  65;
+
+  brotli on;
+  brotli_types *;
+  brotli_min_length 100;
+
+  gzip on;
+  gzip_types *;
+  gzip_min_length 100;
+
+  upstream locations_api {
+    keepalive 100;
+    server locations_api:8000;
+  }
+
+  server {
+    server_name api.${CUSTOM_DOMAIN};
+    listen 80;
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+    ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+    add_header 'Access-Control-Allow-Origin' 'https://${CUSTOM_DOMAIN}' always;
+    add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PATCH, DELETE' always;
+    add_header 'Access-Control-Allow-Headers' 'Content-Type' always;
+
+    location / {
+      proxy_pass http://locations_api;
+    }
+  }
+
+  server {
+    server_name ${CUSTOM_DOMAIN};
+    listen 80;
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+    ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+    location / {
+      root /usr/share/nginx/html;
+      index index.html index.htm;
+    }
+  }
+}

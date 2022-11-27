@@ -1,0 +1,25 @@
+FROM alpine:latest
+
+ARG CUSTOM_DOMAIN
+
+RUN apk add --update --no-cache build-base git pcre-dev openssl-dev zlib-dev linux-headers gettext \
+    && wget https://nginx.org/download/nginx-1.23.3.tar.gz \
+    && tar zxf nginx-1.23.3.tar.gz \
+    && git clone https://github.com/google/ngx_brotli.git --recursive \
+    && cd ../nginx-1.23.3 \
+    && ./configure \
+        --with-compat \
+        --prefix=/usr/share/nginx \
+        --sbin-path=/usr/local/sbin/nginx \
+        --conf-path=/etc/nginx/nginx.conf \
+        --pid-path=/run \
+        --add-dynamic-module=../ngx_brotli \
+    && make modules \
+    && make install
+
+COPY nginx/dev.conf.template  /tmp/nginx.conf.template
+
+RUN export CUSTOM_DOMAIN=${CUSTOM_DOMAIN} \
+    && envsubst < "/tmp/nginx.conf.template" > "/etc/nginx/nginx.conf"
+
+CMD ["nginx", "-g", "daemon off;"]

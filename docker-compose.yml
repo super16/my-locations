@@ -1,0 +1,30 @@
+version: "3"
+
+services:
+  api:
+    container_name: locations_api
+    depends_on:
+      - db
+    entrypoint: /api/start.sh
+    ports:
+      - "${GATEWAY_ADDRESS}:8000:8000"
+
+  nginx:
+    container_name: locations_nginx
+    depends_on:
+      - api
+      - db
+
+  db:
+    container_name: locations_db
+    image: postgres:alpine
+    ports:
+      - ${GATEWAY_ADDRESS}:5432:5432
+
+networks:
+  default:
+    ipam:
+      driver: default
+      config:
+        - subnet: "${SUBNET_ADDRESSES}"
+          gateway: "${GATEWAY_ADDRESS}"

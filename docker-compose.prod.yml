@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  api:
+    build:
+      context: ./
+      dockerfile: ./api/Dockerfile.prod
+    env_file: ./.env.prod
+
+  nginx:
+    build:
+      context: ./
+      dockerfile: ./nginx/Dockerfile.prod
+      args:
+        CUSTOM_DOMAIN: ${CUSTOM_DOMAIN}
+    env_file: ./.env.prod
+    ports:
+      - "${GATEWAY_ADDRESS}:80:80"
+      - "${GATEWAY_ADDRESS}:443:443"
+
+  db:
+    env_file: ./.env.prod

@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  api:
+    build:
+      context: ./
+      dockerfile: ./api/Dockerfile.dev
+    env_file: ./.env.dev
+    volumes:
+      - ./api/my_locations_api:/api/my_locations_api:ro
+
+  nginx:
+    build:
+      context: ./
+      dockerfile: ./nginx/Dockerfile.dev
+      args:
+        CUSTOM_DOMAIN: ${CUSTOM_DOMAIN}
+    env_file: ./.env.dev
+    ports:
+      - "${GATEWAY_ADDRESS}:80:80"
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html:ro
+
+  db:
+    env_file: ./.env.dev

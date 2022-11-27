@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "my-locations-api"
+version = "0.1.0"
+description = "API service for my-locations application"
+authors = ["Mark <https://github.com/super16>"]
+packages = [{include = "my_locations_api"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+sqlalchemy = "^2.0.3"
+asyncpg = "^0.27.0"
+sanic = {extras = ["ext"], version = "^22.12.0"}
+alembic = "^1.9.3"
+
+[tool.poetry.group.development.dependencies]
+ruff = "^0.0.249"
+mypy = "^1.0.1"
+flake8 = "^6.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+select = [
+    "A",
+    "COM",
+    "EM",
+    "E",
+    "I",
+    "N",
+    "S",
+    "T20",
+    "TCH",
+    "W"
+]
+exclude = [
+    "alembic",
+    ".mypy_cache",
+    ".ruff_cache",
+]
