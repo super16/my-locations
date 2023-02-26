@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Optional
 
 from sanic import Blueprint, HTTPResponse, Request
-from sanic.exceptions import BadRequest, NotFound, ServerError
+from sanic.exceptions import NotFound, ServerError
 from sanic.response import empty, json
 from sanic.views import HTTPMethodView
 from sanic_ext import validate
@@ -16,7 +16,6 @@ from my_locations_api.validators import (
     LocationItem,
     LocationItemBase,
     MapBounds,
-    invalid_location_item_fields,
 )
 
 locations_blueprint = Blueprint("Location", url_prefix="/locations")
@@ -144,13 +143,6 @@ class LocationView(HTTPMethodView):
           '201':
             description: Location has been created.
         """
-        invalid_fields = invalid_location_item_fields(body)
-        if invalid_fields:
-            error_message = "Input should not be empty"
-            raise BadRequest(
-                error_message,
-                context={"invalid_fields": invalid_fields},
-            )
 
         session: AsyncSession = request.ctx.session
         async with session.begin():
@@ -243,13 +235,6 @@ class LocationItemView(HTTPMethodView):
           '404':
             description: Location has not been found.
         """
-        invalid_fields = invalid_location_item_fields(body)
-        if invalid_fields:
-            error_message = "Input should not be empty"
-            raise BadRequest(
-                error_message,
-                context={"invalid_fields": invalid_fields},
-            )
 
         session: AsyncSession = request.ctx.session
         async with session.begin():

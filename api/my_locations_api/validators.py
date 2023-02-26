@@ -1,11 +1,26 @@
 from dataclasses import dataclass, fields
 from typing import List
 
+from sanic.exceptions import BadRequest
+
 
 @dataclass
 class LocationItemBase:
     title: str
     description: str
+
+    def __post_init__(self) -> None:
+        """Validate fields for empty values"""
+        invalid_fields: List[str] = [
+            field.name for field in fields(self)
+            if not getattr(self, field.name)
+        ]
+        if invalid_fields:
+            error_message: str = "Input should not be empty"
+            raise BadRequest(
+                error_message,
+                context={"invalid_fields": invalid_fields},
+            )
 
 
 @dataclass
@@ -20,19 +35,3 @@ class MapBounds:
     end_longitude: float
     start_latitude: float
     start_longitude: float
-
-
-def invalid_location_item_fields(data_class: LocationItemBase) -> List[str]:
-    """
-    Validate fields of Location dataclasses for empty values.
-
-    Args:
-        data_class: Input dataclass entity.
-
-    Returns:
-        List of string with names of invalid fields.
-    """
-    return [
-        field.name for field in fields(data_class)
-        if not getattr(data_class, field.name)
-    ]
