@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from sqlalchemy.engine import Result, ScalarResult
     from sqlalchemy.ext.asyncio import AsyncSession
 
+from my_locations_api.database import DatabaseConnection
 from my_locations_api.models.location import Location
 from my_locations_api.validators import (
     LocationItem,
@@ -27,8 +28,9 @@ class LocationView(HTTPMethodView):
     @validate(query=MapBounds)
     async def get(
         self,
-        request: Request,
+        _,
         query: MapBounds,
+        conn: DatabaseConnection,
     ) -> HTTPResponse:
         """Get list of locations by map bounds.
 
@@ -59,7 +61,7 @@ class LocationView(HTTPMethodView):
           '200':
             description: List of locations or empty list.
         """
-        session: AsyncSession = request.ctx.session
+        session: AsyncSession = conn.create_session()
         async with session.begin():
             db_query = select(Location).where(
                 Location.latitude.between(
@@ -85,6 +87,7 @@ class LocationView(HTTPMethodView):
         self,
         request: Request,
         query: MapBounds,
+        conn: DatabaseConnection,
     ) -> HTTPResponse:
         """Headers of locations request by map bounds.
 
@@ -115,13 +118,14 @@ class LocationView(HTTPMethodView):
           '200':
             description: Headers of locations request.
         """
-        return await self.get(request, query)
+        return await self.get(request, query, conn)
 
     @validate(json=LocationItem)
     async def post(
         self,
-        request: Request,
+        _,
         body: LocationItem,
+        conn: DatabaseConnection,
     ) -> HTTPResponse:
         """Create new location.
 
@@ -144,7 +148,7 @@ class LocationView(HTTPMethodView):
             description: Location has been created.
         """
 
-        session: AsyncSession = request.ctx.session
+        session: AsyncSession = conn.create_session()
         async with session.begin():
             db_query = insert(Location).values(
                 title=body.title,
@@ -165,7 +169,12 @@ class LocationView(HTTPMethodView):
 
 class LocationItemView(HTTPMethodView):
 
-    async def get(self, request: Request, location_id: int) -> HTTPResponse:
+    async def get(
+        self,
+        _,
+        location_id: int,
+        conn: DatabaseConnection,
+    ) -> HTTPResponse:
         """Get location by id.
 
         openapi:
@@ -179,7 +188,7 @@ class LocationItemView(HTTPMethodView):
           '404':
             description: Location has not been found.
         """
-        session: AsyncSession = request.ctx.session
+        session: AsyncSession = conn.create_session()
         async with session.begin():
             db_query = select(Location).where(
                 Location.location_id == location_id,
@@ -210,9 +219,10 @@ class LocationItemView(HTTPMethodView):
     @validate(json=LocationItemBase)
     async def patch(
         self,
-        request: Request,
+        _,
         location_id: int,
         body: LocationItemBase,
+        conn: DatabaseConnection,
     ) -> HTTPResponse:
         """Update location by id.
 
@@ -236,7 +246,7 @@ class LocationItemView(HTTPMethodView):
             description: Location has not been found.
         """
 
-        session: AsyncSession = request.ctx.session
+        session: AsyncSession = conn.create_session()
         async with session.begin():
             db_query = update(Location).where(
                 Location.location_id == location_id,
@@ -253,7 +263,12 @@ class LocationItemView(HTTPMethodView):
 
         return json(updated_location.serialize())
 
-    async def delete(self, request: Request, location_id: int) -> HTTPResponse:
+    async def delete(
+        self,
+        _,
+        location_id: int,
+        conn: DatabaseConnection,
+    ) -> HTTPResponse:
         """Delete location by id.
 
         openapi:
@@ -265,7 +280,7 @@ class LocationItemView(HTTPMethodView):
           '204':
             description: Location has been deleted.
         """
-        session: AsyncSession = request.ctx.session
+        session: AsyncSession = conn.create_session()
         async with session.begin():
             await session.execute(
                 delete(Location).where(

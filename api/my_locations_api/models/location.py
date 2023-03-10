@@ -1,48 +1,49 @@
 from datetime import datetime
-from typing import Any
 
 from sqlalchemy import (
     DECIMAL,
     INTEGER,
     TEXT,
     VARCHAR,
-    Column,
     DateTime,
     text,
 )
-from sqlalchemy.orm import declarative_base
-from sqlalchemy.schema import MetaData
+from sqlalchemy.orm import (
+    DeclarativeBase,
+    Mapped,
+    mapped_column,
+)
 
-Base: Any = declarative_base()
 
-base_metadata: MetaData = Base.metadata
+class Base(DeclarativeBase):
+    pass
 
 
 class Location(Base):
 
     __tablename__ = "location"
 
-    location_id = Column(
+    location_id: Mapped[int] = mapped_column(
         INTEGER(),
         autoincrement=True,
         index=True,
         primary_key=True,
         unique=True,
     )
-    title = Column(VARCHAR(64), nullable=False)
-    description = Column(TEXT(), nullable=False)
-    created_at = Column(
+    title: Mapped[str] = mapped_column(VARCHAR(64), nullable=False)
+    description: Mapped[str] = mapped_column(TEXT(), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
         DateTime(),
         default=datetime.utcnow,
         server_default=text('now()'),
     )
-    updated_at = Column(
+    updated_at: Mapped[datetime] = mapped_column(
         DateTime(),
         default=datetime.utcnow,
         server_default=text('now()'),
     )
-    latitude: Column[float] = Column(DECIMAL(8, 6), nullable=False)
-    longitude: Column[float] = Column(DECIMAL(9, 6), nullable=False)
+    latitude: Mapped[float] = mapped_column(DECIMAL(8, 6), nullable=False)
+    longitude: Mapped[float] = mapped_column(DECIMAL(9, 6), nullable=False)
 
     def serialize(self) -> dict:
         """Serialize Location object to Python dictionary.
