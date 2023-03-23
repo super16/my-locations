@@ -13,7 +13,7 @@ cp .env.example .env.dev
 make dev
 ```
 
-### Stop & Delete
+### Stop & Remove
 
 ```shell
 make dev-stop
