@@ -1,11 +1,14 @@
 FROM node:lts-alpine as frontend-build
 
+RUN npm i -g pnpm
+
 WORKDIR /app
-COPY frontend/package*.json ./
-RUN npm install
+COPY frontend/package.json frontend/pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+
 COPY frontend .
 COPY .env.prod ./.env
-RUN npm run build
+RUN pnpm run build
 
 FROM alpine:latest
 
