@@ -2,9 +2,12 @@ version: "3"
 
 services:
   api:
-    build:
-      context: ./
-      dockerfile: ./api/Dockerfile.prod
+    command: >
+      bash -c "alembic upgrade head &&
+      sanic my_locations_api:api
+      --host=0.0.0.0
+      --port=8000
+      --fast"
     env_file: ./.env.prod
 
   nginx:

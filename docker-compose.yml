@@ -2,10 +2,13 @@ version: "3"
 
 services:
   api:
+    build:
+      context: ./
+      dockerfile: ./api/Dockerfile
     container_name: locations_api
     depends_on:
-      - db
-    entrypoint: /api/start.sh
+      db:
+        condition: service_started
     ports:
       - "${GATEWAY_ADDRESS}:8000:8000"
 
