@@ -8,7 +8,7 @@ services:
     container_name: locations_api
     depends_on:
       db:
-        condition: service_started
+        condition: service_healthy
     ports:
       - "${GATEWAY_ADDRESS}:8000:8000"
 
@@ -20,6 +20,11 @@ services:
 
   db:
     container_name: locations_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
     image: postgres:alpine
     ports:
       - ${GATEWAY_ADDRESS}:5432:5432
