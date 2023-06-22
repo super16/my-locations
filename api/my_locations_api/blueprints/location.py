@@ -6,12 +6,11 @@ from sanic.response import empty, json
 from sanic.views import HTTPMethodView
 from sanic_ext import validate
 from sqlalchemy import delete, insert, select, update
+from sqlalchemy.ext.asyncio import AsyncSession
 
 if TYPE_CHECKING:
     from sqlalchemy.engine import Result, ScalarResult
-    from sqlalchemy.ext.asyncio import AsyncSession
 
-from my_locations_api.database import DatabaseConnection
 from my_locations_api.models.location import Location
 from my_locations_api.validators import (
     LocationItem,
@@ -30,7 +29,7 @@ class LocationView(HTTPMethodView):
         self,
         _,
         query: MapBounds,
-        conn: DatabaseConnection,
+        session: AsyncSession,
     ) -> HTTPResponse:
         """Get list of locations by map bounds.
 
@@ -61,7 +60,6 @@ class LocationView(HTTPMethodView):
           '200':
             description: List of locations or empty list.
         """
-        session: AsyncSession = conn.create_session()
         async with session.begin():
             db_query = select(Location).where(
                 Location.latitude.between(
@@ -87,7 +85,7 @@ class LocationView(HTTPMethodView):
         self,
         request: Request,
         query: MapBounds,
-        conn: DatabaseConnection,
+        session: AsyncSession,
     ) -> HTTPResponse:
         """Headers of locations request by map bounds.
 
@@ -118,14 +116,14 @@ class LocationView(HTTPMethodView):
           '200':
             description: Headers of locations request.
         """
-        return await self.get(request, query, conn)
+        return await self.get(request, query, session)
 
     @validate(json=LocationItem)
     async def post(
         self,
         _,
         body: LocationItem,
-        conn: DatabaseConnection,
+        session: AsyncSession,
     ) -> HTTPResponse:
         """Create new location.
 
@@ -148,7 +146,6 @@ class LocationView(HTTPMethodView):
             description: Location has been created.
         """
 
-        session: AsyncSession = conn.create_session()
         async with session.begin():
             db_query = insert(Location).values(
                 title=body.title,
@@ -173,7 +170,7 @@ class LocationItemView(HTTPMethodView):
         self,
         _,
         location_id: int,
-        conn: DatabaseConnection,
+        session: AsyncSession,
     ) -> HTTPResponse:
         """Get location by id.
 
@@ -188,7 +185,6 @@ class LocationItemView(HTTPMethodView):
           '404':
             description: Location has not been found.
         """
-        session: AsyncSession = conn.create_session()
         async with session.begin():
             db_query = select(Location).where(
                 Location.location_id == location_id,
@@ -202,7 +198,12 @@ class LocationItemView(HTTPMethodView):
 
         return json(location.serialize())
 
-    async def head(self, request: Request, location_id: int) -> HTTPResponse:
+    async def head(
+        self,
+        request: Request,
+        location_id: int,
+        session: AsyncSession,
+    ) -> HTTPResponse:
         """Headers of location by id.
 
         openapi:
@@ -214,7 +215,7 @@ class LocationItemView(HTTPMethodView):
           '200':
             description: Headers returned.
         """
-        return await self.get(request, location_id)
+        return await self.get(request, location_id, session)
 
     @validate(json=LocationItemBase)
     async def patch(
@@ -222,7 +223,7 @@ class LocationItemView(HTTPMethodView):
         _,
         location_id: int,
         body: LocationItemBase,
-        conn: DatabaseConnection,
+        session: AsyncSession,
     ) -> HTTPResponse:
         """Update location by id.
 
@@ -246,7 +247,6 @@ class LocationItemView(HTTPMethodView):
             description: Location has not been found.
         """
 
-        session: AsyncSession = conn.create_session()
         async with session.begin():
             db_query = update(Location).where(
                 Location.location_id == location_id,
@@ -267,7 +267,7 @@ class LocationItemView(HTTPMethodView):
         self,
         _,
         location_id: int,
-        conn: DatabaseConnection,
+        session: AsyncSession,
     ) -> HTTPResponse:
         """Delete location by id.
 
@@ -280,7 +280,6 @@ class LocationItemView(HTTPMethodView):
           '204':
             description: Location has been deleted.
         """
-        session: AsyncSession = conn.create_session()
         async with session.begin():
             await session.execute(
                 delete(Location).where(

@@ -7,12 +7,14 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
+from my_locations_api.config import ApplicationConfig
+
 
 class DatabaseConnection:
 
-    """Connection class to PostgreSQL database."""
+    """Connection to database wrapper."""
 
-    def __init__(self, config: Config) -> None:
+    def __init__(self, config: Config | ApplicationConfig) -> None:
         self._url: URL = URL.create(
             config.DB_ENGINE,
             config.DB_USER,
@@ -21,12 +23,13 @@ class DatabaseConnection:
             config.DB_PORT,
             config.DB_NAME,
         )
-        self._connection: AsyncEngine = create_async_engine(self._url)
+        self._connection: AsyncEngine = create_async_engine(
+            self._url, echo=config.DEBUG,
+        )
         self._session_factory: async_sessionmaker[AsyncSession] = \
             async_sessionmaker(
                 self._connection, expire_on_commit=False,
             )
 
-    @property
-    def create_session(self) -> async_sessionmaker[AsyncSession]:
-        return self._session_factory
+    def create_session(self) -> AsyncSession:
+        return self._session_factory()
