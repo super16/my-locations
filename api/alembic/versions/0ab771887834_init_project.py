@@ -4,11 +4,12 @@ from sqlalchemy import (
     TEXT,
     VARCHAR,
     Column,
-    DateTime,
-    text,
 )
+from sqlalchemy.dialects.postgresql import TIMESTAMP
+from sqlalchemy.sql.functions import current_timestamp
 
-from alembic import op
+from alembic.op import create_table, drop_table
+
 
 revision = "0ab771887834"
 down_revision = None
@@ -17,34 +18,27 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.create_table(
+    create_table(
         "location",
-        Column(
-            "location_id",
-            INTEGER,
-            autoincrement=True,
-            index=True,
-            primary_key=True,
-            unique=True,
-        ),
+        Column("location_id", INTEGER(), primary_key=True),
         Column("title", VARCHAR(64), nullable=False),
         Column("description", TEXT(), nullable=False),
+        Column("latitude", DECIMAL(8, 6), nullable=False),
+        Column("longitude", DECIMAL(8, 6), nullable=False),
         Column(
             "created_at",
-            DateTime(),
-            server_default=text("now()"),
-            nullable=True,
+            TIMESTAMP(),
+            server_default=current_timestamp(),
+            nullable=False,
         ),
         Column(
             "updated_at",
-            DateTime(),
-            server_default=text("now()"),
+            TIMESTAMP(),
+            onupdate=current_timestamp(),
             nullable=True,
         ),
-        Column("latitude", DECIMAL(8, 6), nullable=False),
-        Column("longitude", DECIMAL(8, 6), nullable=False),
     )
 
 
 def downgrade() -> None:
-    op.drop_table("locations")
+    drop_table("location")

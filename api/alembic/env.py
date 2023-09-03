@@ -1,36 +1,39 @@
-import asyncio
+from asyncio import run
 from logging.config import fileConfig
 from os import getenv
 
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import URL
 from sqlalchemy.engine import Connection
-from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.ext.asyncio import async_engine_from_config
+from sqlalchemy.pool import NullPool
 
-from alembic import context
-
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
-config = context.config
-
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
-if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
-
-# add your model's MetaData object here
-# for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
-target_metadata = None
-
-url = (
-    f"postgresql+asyncpg://{getenv('POSTGRES_USER', 'user')}:"
-    f"{getenv('POSTGRES_PASSWORD', 'password')}@"
-    f"{getenv('GATEWAY_ADDRESS', '172.28.5.254')}:5432/"
-    f"{getenv('POSTGRES_DB', 'locations')}"
+from alembic.context import (
+    begin_transaction,
+    config,
+    configure,
+    is_offline_mode,
+    run_migrations,
 )
 
-config.set_main_option('sqlalchemy.url', url)
+
+alembic_config = config
+
+if alembic_config.config_file_name is not None:
+    fileConfig(alembic_config.config_file_name)
+
+target_metadata = None
+
+url = URL.create(
+    drivername="postgresql+asyncpg",
+    username=getenv("POSTGRES_USER", "user"),
+    password=getenv("POSTGRES_PASSWORD", "password"),
+    host="locations_db",
+    database=getenv("POSTGRES_DB", "locations"),
+)
+
+config.set_main_option(
+    "sqlalchemy.url", url.render_as_string(hide_password=False),
+)
 
 
 def run_migrations_offline() -> None:
@@ -43,24 +46,23 @@ def run_migrations_offline() -> None:
 
     Calls to context.execute() here emit the given string to the
     script output.
-
     """
-    context.configure(
+    configure(
         url=url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
     )
 
-    with context.begin_transaction():
-        context.run_migrations()
+    with begin_transaction():
+        run_migrations()
 
 
 def do_run_migrations(connection: Connection) -> None:
-    context.configure(connection=connection, target_metadata=target_metadata)
+    configure(connection=connection, target_metadata=target_metadata)
 
-    with context.begin_transaction():
-        context.run_migrations()
+    with begin_transaction():
+        run_migrations()
 
 
 async def run_migrations_online() -> None:
@@ -68,15 +70,11 @@ async def run_migrations_online() -> None:
 
     In this scenario we need to create an Engine
     and associate a connection with the context.
-
     """
-    connectable = AsyncEngine(
-        engine_from_config(
-            config.get_section(config.config_ini_section),
-            prefix="sqlalchemy.",
-            poolclass=pool.NullPool,
-            future=True,
-        )
+    connectable = async_engine_from_config(
+        config.get_section(config.config_ini_section, {}),
+        prefix="sqlalchemy.",
+        poolclass=NullPool,
     )
 
     async with connectable.connect() as connection:
@@ -85,7 +83,7 @@ async def run_migrations_online() -> None:
     await connectable.dispose()
 
 
-if context.is_offline_mode():
+if is_offline_mode():
     run_migrations_offline()
 else:
-    asyncio.run(run_migrations_online())
+    run(run_migrations_online())

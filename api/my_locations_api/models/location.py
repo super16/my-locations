@@ -1,18 +1,13 @@
 from datetime import datetime
 
-from sqlalchemy import (
-    DECIMAL,
-    INTEGER,
-    TEXT,
-    VARCHAR,
-    DateTime,
-    text,
-)
+from sqlalchemy import DECIMAL, INTEGER, TEXT, VARCHAR
+from sqlalchemy.dialects.postgresql import TIMESTAMP
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
     mapped_column,
 )
+from sqlalchemy.sql.functions import current_timestamp
 
 
 class Base(DeclarativeBase):
@@ -23,27 +18,19 @@ class Location(Base):
 
     __tablename__ = "location"
 
-    location_id: Mapped[int] = mapped_column(
-        INTEGER(),
-        autoincrement=True,
-        index=True,
-        primary_key=True,
-        unique=True,
-    )
+    location_id: Mapped[int] = mapped_column(INTEGER(), primary_key=True)
     title: Mapped[str] = mapped_column(VARCHAR(64), nullable=False)
     description: Mapped[str] = mapped_column(TEXT(), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(),
-        default=datetime.utcnow,
-        server_default=text('now()'),
-    )
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(),
-        default=datetime.utcnow,
-        server_default=text('now()'),
-    )
     latitude: Mapped[float] = mapped_column(DECIMAL(8, 6), nullable=False)
     longitude: Mapped[float] = mapped_column(DECIMAL(9, 6), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(),
+        server_default=current_timestamp(),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(),
+        onupdate=current_timestamp(),
+    )
 
     def serialize(self) -> dict:
         """Serialize Location object to Python dictionary.
