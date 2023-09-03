@@ -15,10 +15,12 @@ FROM alpine:latest
 ARG CUSTOM_DOMAIN
 
 RUN apk add --update --no-cache build-base git pcre-dev openssl openssl-dev zlib-dev linux-headers gettext \
-    && wget https://nginx.org/download/nginx-1.23.3.tar.gz \
-    && tar zxf nginx-1.23.3.tar.gz \
+    && wget https://nginx.org/download/nginx-1.24.0.tar.gz \
+    && tar zxf nginx-1.24.0.tar.gz \
     && git clone https://github.com/google/ngx_brotli.git --recursive \
-    && cd ../nginx-1.23.3 \
+    && cd ngx_brotli \
+    && git checkout 6e975bcb015f62e1f303054897783355e2a877dc && git submodule update --recursive \
+    && cd ../../nginx-1.24.0 \
     && ./configure \
         --with-compat \
         --with-http_ssl_module \
