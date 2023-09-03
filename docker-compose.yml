@@ -28,11 +28,3 @@ services:
     image: postgres:alpine
     ports:
       - ${GATEWAY_ADDRESS}:5432:5432
-
-networks:
-  default:
-    ipam:
-      driver: default
-      config:
-        - subnet: "${SUBNET_ADDRESSES}"
-          gateway: "${GATEWAY_ADDRESS}"
