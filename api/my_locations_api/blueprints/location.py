@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from sanic import Blueprint, HTTPResponse, Request
 from sanic.exceptions import NotFound, ServerError
@@ -155,7 +155,7 @@ class LocationView(HTTPMethodView):
             ).returning(Location)
 
             result: Result = await session.execute(db_query)
-            created_location: Optional[Location] = result.scalar()
+            created_location: Location | None = result.scalar()
 
         if not created_location:
             error_message = "Can't create location"
@@ -190,7 +190,7 @@ class LocationItemView(HTTPMethodView):
                 Location.location_id == location_id,
             )
             result: Result = await session.execute(db_query)
-            location: Optional[Location] = result.scalar()
+            location: Location | None = result.scalar()
 
         if not location:
             error_message = "Location has not been found"
@@ -255,7 +255,7 @@ class LocationItemView(HTTPMethodView):
             ).returning(Location)
 
             result: Result = await session.execute(db_query)
-            updated_location: Optional[Location] = result.scalar()
+            updated_location: Location | None = result.scalar()
 
         if not updated_location:
             error_message = "Location has not been found"

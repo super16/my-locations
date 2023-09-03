@@ -1,5 +1,4 @@
 from dataclasses import dataclass, fields
-from typing import List
 
 from sanic.exceptions import BadRequest
 
@@ -11,7 +10,7 @@ class LocationItemBase:
 
     def __post_init__(self) -> None:
         """Validate fields for empty values"""
-        invalid_fields: List[str] = [
+        invalid_fields: list[str] = [
             field.name for field in fields(self)
             if not getattr(self, field.name)
         ]

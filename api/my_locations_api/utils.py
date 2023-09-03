@@ -1,4 +1,3 @@
-from typing import Type
 
 from sanic import Sanic
 
@@ -7,7 +6,7 @@ from my_locations_api.config import ApplicationConfig
 from my_locations_api.database import DatabaseConnection
 
 
-def create_app(title: str, config: Type[ApplicationConfig]) -> Sanic:
+def create_app(title: str, config: type[ApplicationConfig]) -> Sanic:
 
     app = Sanic(title)
     app.update_config(config)
