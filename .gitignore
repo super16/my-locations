@@ -1,6 +1,7 @@
 # Python
 __pycache__/
 api/.mypy_cache
+api/.pytest_cache
 api/.ruff_cache
 
 # Logs
