@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "API service for my-locations application"
 authors = ["Mark <super16mail@gmail.com>"]
 packages = [{include = "my_locations_api"}]
+readme = "README.md"
 
 [tool.poetry.dependencies]
 alembic = "^1.12.0"
