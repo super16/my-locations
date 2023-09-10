@@ -21,7 +21,7 @@ def event_loop() -> Generator[AbstractEventLoop, None, None]:
 
 
 @fixture(scope="session")
-def testing_config() -> ApplicationConfig:
+def testing_config() -> ApplicationConfig | type[ApplicationConfig]:
     application_config = ApplicationConfig
     application_config.DB_ENGINE = "postgresql+asyncpg"
     application_config.DB_USER = "test_user"
@@ -77,10 +77,44 @@ async def app(
 
 
 @fixture(scope="session")
-def map_bounds() -> dict[str, float]:
+def standalone_single_location() -> tuple[str, dict[str, float | str]]:
+    return (
+        (
+            "/v1/locations?"
+            "end_latitude=85.0&end_longitude=46.0&"
+            "start_latitude=65.0&start_longitude=30.0"
+        ),
+        {
+            "title": "Standalone single location",
+            "description": "Standalone single location description",
+            "latitude": 75.0,
+            "longitude": 35.0,
+        },
+    )
+
+
+@fixture(scope="session")
+def new_location() -> dict[str, float | str]:
     return {
-        "end_latitude": 2.9,
-        "end_longitude": 2.9,
-        "start_latitude": 2.2,
-        "start_longitude": 2.2,
+        "title": "New location",
+        "description": "New location description",
+        "latitude": 55.0,
+        "longitude": 15.0,
+    }
+
+
+@fixture(scope="session")
+def get_locations_path() -> str:
+    return (
+        "/v1/locations?"
+        "end_latitude=62.0&end_longitude=26.0&"
+        "start_latitude=52.0&start_longitude=9.0"
+    )
+
+
+@fixture(scope="session")
+def update_for_location() -> dict[str, str]:
+    return {
+        "title": "Updated title",
+        "description": "Updated description",
     }
