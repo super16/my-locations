@@ -15,29 +15,29 @@
     "pnpm": ">=8"
   },
   "dependencies": {
-    "axios": "^1.5.0",
+    "axios": "^1.6.1",
     "leaflet": "^1.9.4",
     "path": "^0.12.7",
-    "pinia": "^2.1.6",
-    "vue": "^3.3.4"
+    "pinia": "^2.1.7",
+    "vue": "^3.3.8"
   },
   "devDependencies": {
-    "@types/leaflet": "^1.9.4",
-    "@types/node": "^20.6.2",
-    "@typescript-eslint/eslint-plugin": "^6.7.0",
-    "@typescript-eslint/parser": "^6.7.0",
-    "@vitejs/plugin-vue": "^4.3.4",
-    "autoprefixer": "^10.4.15",
-    "eslint": "^8.49.0",
+    "@types/leaflet": "^1.9.8",
+    "@types/node": "^20.9.0",
+    "@typescript-eslint/eslint-plugin": "^6.10.0",
+    "@typescript-eslint/parser": "^6.10.0",
+    "@vitejs/plugin-vue": "^4.4.1",
+    "autoprefixer": "^10.4.16",
+    "eslint": "^8.53.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-airbnb-typescript": "^17.1.0",
     "eslint-import-resolver-alias": "^1.1.2",
-    "eslint-plugin-import": "^2.28.1",
-    "eslint-plugin-vue": "^9.17.0",
-    "postcss": "^8.4.29",
-    "tailwindcss": "^3.3.3",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-vue": "^9.18.1",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.5",
     "typescript": "^5.2.2",
-    "vite": "^4.4.9",
-    "vue-tsc": "^1.8.11"
+    "vite": "^4.5.0",
+    "vue-tsc": "^1.8.22"
   }
 }
