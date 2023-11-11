@@ -7,18 +7,18 @@ packages = [{include = "my_locations_api"}]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-alembic = "^1.12.0"
-asyncpg = "^0.28.0"
+alembic = "^1.12.1"
+asyncpg = "^0.29.0"
 sanic = {extras = ["ext"], version = "^23.6.0"}
-sqlalchemy = {extras = ["asyncio"], version = "^2.0.20"}
+sqlalchemy = {version = "^2.0.23", extras = ["asyncio"]}
 python = "^3.11"
 
 [tool.poetry.group.development.dependencies]
 flake8 = "^6.1.0"
-mypy = "^1.5.1"
-pytest = "^7.4.2"
+mypy = "^1.7.0"
+pytest = "^7.4.3"
 pytest-asyncio = "^0.21.1"
-ruff = "^0.0.287"
+ruff = "^0.1.5"
 sanic-testing = "^23.6.0"
 types-ujson = "^5.8.0.1"
 
